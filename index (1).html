@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0c0f">
+<title>LENKZEIT // VWG</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0a0c0f;
+  --bg2:    #111418;
+  --bg3:    #1a1f26;
+  --bg4:    #252c36;
+  --bg5:    #2e3847;
+  --txt:    #e8edf5;
+  --txt2:   #b0bec8;
+  --txt3:   #7a8fa0;
+  --txt4:   #4a5f70;
+  --txt5:   #2e404f;
+  --border: #1e2a35;
+  --border2:rgba(255,255,255,.05);
+  --accent: #ff6b00;   /* Warnfarbe Bus-Orange */
+  --accent2:#ffaa00;
+  --green:  #00e676;
+  --green-t:#69ffb0;
+  --green-bg:#00e67614;
+  --yellow: #ffaa00;
+  --yellow-t:#ffd060;
+  --yellow-bg:#ffaa0014;
+  --blue:   #00b4d8;
+  --blue-t: #80dfff;
+  --purple: #7c6af7;
+  --purple-t:#b8b0ff;
+  --purple-bg:#7c6af714;
+  --red:    #ff3d3d;
+  --red-t:  #ff9090;
+  --red-bg: #ff3d3d14;
+  --road:   #141a22;   /* Asphalt */
+}
+.light{
+  --bg:#e8ecf0; --bg2:#f5f7fa; --bg3:#dde3ea; --bg4:#c8d0da; --bg5:#b0bcc8;
+  --txt:#0d1520; --txt2:#1e2d3d; --txt3:#3d5266; --txt4:#5a7080; --txt5:#7a90a0;
+  --border:#c0ccda; --border2:rgba(0,0,0,.08);
+  --road:#d0d8e0;
+  --green-bg:#00e67620; --yellow-bg:#ffaa0020; --purple-bg:#7c6af720; --red-bg:#ff3d3d20;
+  --green-t:#007a30; --yellow-t:#7a5000; --purple-t:#3a2880; --red-t:#8a0000;
+}
+
+/* ─── RESET ─────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'Exo 2','Segoe UI',sans-serif;
+  min-height:100vh;
+  padding:env(safe-area-inset-top,18px) 13px env(safe-area-inset-bottom,32px);
+  max-width:460px;margin:0 auto;
+  overscroll-behavior:none;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,107,0,.04) 39px,rgba(255,107,0,.04) 40px);
+}
+button{font-family:'Exo 2',sans-serif;cursor:pointer;border:none;transition:all .12s;background:none}
+button:active{transform:scale(.95);filter:brightness(.85)}
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px;opacity:.4}
+.mono{font-family:'Share Tech Mono',monospace}
+
+/* ─── ROAD STRIPE decoration ──────── */
+body::before{
+  content:'';position:fixed;bottom:0;left:0;right:0;height:3px;
+  background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 30px,transparent 30px,transparent 50px);
+  opacity:.35;pointer-events:none;z-index:999;
+}
+
+/* ─── CARD ─────────────────────────── */
+.card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 15px;
+  margin-bottom:10px;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:.3;
+}
+.section-lbl{
+  font-family:'Rajdhani',sans-serif;
+  font-size:11px;font-weight:700;
+  color:var(--accent);
+  text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:10px;
+}
+
+/* ─── TOP TABS ──────────────────────── */
+#top-tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+#top-tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex-shrink:0;padding:8px 12px;border-radius:6px;
+  font-size:11px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:.06em;
+  cursor:pointer;transition:all .2s;
+  border:1px solid var(--border);
+  background:var(--bg2);color:var(--txt4);
+  text-transform:uppercase;
+}
+.tab-btn.active{
+  background:var(--accent);border-color:var(--accent);
+  color:#000;box-shadow:0 0 12px var(--accent)55;
+}
+
+/* ─── HEADER ────────────────────────── */
+#header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-top:4px}
+#header-logo{font-size:28px;filter:drop-shadow(0 0 8px var(--accent)88)}
+#header h1{
+  font-family:'Rajdhani',sans-serif;
+  font-size:22px;font-weight:700;
+  letter-spacing:.04em;
+  color:var(--txt);
+  line-height:1;
+}
+#header h1 span{color:var(--accent)}
+#header p{font-size:9px;color:var(--txt4);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+#status-badge{
+  margin-left:auto;display:inline-flex;align-items:center;gap:5px;
+  border-radius:4px;padding:5px 10px;
+  font-size:10px;font-weight:700;font-family:'Rajdhani',sans-serif;
+  letter-spacing:.08em;text-transform:uppercase;
+  transition:all .3s;flex-shrink:0;
+}
+#status-dot{width:6px;height:6px;border-radius:50%;transition:all .3s}
+
+/* ─── HEADER ACTIONS ────────────────── */
+#header-actions{display:flex;gap:6px;align-items:center;margin-bottom:12px}
+#theme-btn,#notif-btn{
+  padding:7px 10px;border-radius:6px;font-size:12px;font-weight:600;
+  background:var(--bg2);border:1px solid var(--border);color:var(--txt3);
+}
+#shift-start-row{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:6px;padding:7px 11px;
+}
+#shift-start-row label{
+  font-size:10px;color:var(--accent);white-space:nowrap;
+  font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+}
+#shift-start{
+  background:none;border:none;color:var(--txt);
+  font-size:14px;font-weight:700;
+  font-family:'Share Tech Mono',monospace;
+  width:70px;outline:none;
+}
+
+/* ─── MODE TABS ─────────────────────── */
+#mode-tabs{display:flex;gap:6px;margin-bottom:12px}
+.mode-btn{
+  flex:1;padding:8px 4px;border-radius:6px;
+  font-size:10px;font-weight:700;
+  font-family:'Rajdhani',sans-serif;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+  border:1px solid var(--border);background:var(--bg2);color:var(--txt4);
+}
+.mode-btn.active{
+  background:var(--bg3);border-color:var(--blue);
+  color:var(--blue-t);box-shadow:inset 0 0 10px var(--blue)22;
+}
+
+/* ─── LIVE TIMER ────────────────────── */
+#live-timer{
+  background:var(--road);
+  border:1px solid var(--border);
+  border-radius:10px;padding:18px 20px;
+  margin-bottom:12px;text-align:center;display:none;
+  position:relative;overflow:hidden;
+}
+#live-timer::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    90deg,transparent 0,transparent 48px,
+    rgba(255,107,0,.06) 48px,rgba(255,107,0,.06) 50px
+  );pointer-events:none;
+}
+#live-timer .lbl{
+  font-size:9px;color:var(--accent);
+  letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+}
+#live-timer .time{
+  font-size:52px;font-weight:700;letter-spacing:.04em;line-height:1;
+  font-family:'Share Tech Mono',monospace;
+}
+#shift-elapsed{font-size:10px;color:var(--txt4);margin-top:5px;font-family:'Rajdhani',sans-serif;letter-spacing:.06em}
+
+/* ─── STAT CARDS ────────────────────── */
+.stat-card{
+  background:var(--bg2);border-radius:8px;padding:11px 13px;
+  display:flex;align-items:center;gap:12px;margin-bottom:7px;
+  border:1px solid var(--border);transition:border-color .3s;
+  position:relative;overflow:hidden;
+}
+.stat-card::after{
+  content:'';position:absolute;right:0;top:0;bottom:0;width:3px;
+  background:var(--accent);opacity:.2;
+}
+.stat-info{flex:1;min-width:0}
+.stat-lbl{
+  font-size:9px;color:var(--txt4);font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;
+  font-family:'Rajdhani',sans-serif;
+}
+.stat-val{font-size:18px;font-weight:700;font-family:'Share Tech Mono',monospace}
+.stat-right{text-align:right;flex-shrink:0}
+.stat-rem-lbl{font-size:9px;color:var(--txt4);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.stat-rem{font-size:13px;font-weight:700;color:var(--blue);font-family:'Share Tech Mono',monospace}
+.stat-of{font-size:9px;color:var(--txt5);font-family:'Share Tech Mono',monospace}
+
+/* ─── PAUSE CARD ────────────────────── */
+.pause-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pause-row span:first-child{font-size:11px;color:var(--txt4);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em}
+.opt-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border2)}
+.opt-lbl{font-size:11px;color:var(--txt4);font-family:'Rajdhani',sans-serif;font-weight:600}
+.opt-cnt{margin-left:auto;font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--txt4)}
+.opt-row.done .opt-lbl{color:var(--green-t)}
+.opt-row.done .opt-cnt{color:var(--green)}
+#splits-display{margin-top:8px;font-size:11px;color:var(--txt4)}
+.split-chip{
+  background:var(--bg3);border-radius:3px;padding:1px 7px;margin:0 2px;
+  font-family:'Share Tech Mono',monospace;color:var(--txt2);display:inline-block;
+  border:1px solid var(--border);
+}
+#short-progress{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:6px}
+#short-bar{height:100%;border-radius:2px;transition:width .5s,background .3s;width:0%}
+
+/* ─── ALERTS ────────────────────────── */
+.alert{
+  border-radius:8px;padding:10px 13px;margin-bottom:10px;
+  font-size:12px;font-weight:700;display:none;align-items:center;gap:8px;
+  font-family:'Rajdhani',sans-serif;letter-spacing:.04em;
+}
+#alert-danger{background:var(--red-bg);border:1px solid var(--red);color:var(--red-t);border-left:3px solid var(--red)}
+#alert-warn{background:var(--yellow-bg);border:1px solid var(--yellow)44;color:var(--yellow-t);border-left:3px solid var(--yellow)}
+#alert-ok{background:var(--green-bg);border:1px solid var(--green)44;color:var(--green-t);border-left:3px solid var(--green)}
+#alert-short{background:#2e404f22;border:1px solid var(--txt5)44;color:var(--txt3);border-left:3px solid var(--txt5)}
+
+/* ─── CONTROLS ──────────────────────── */
+#controls{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.ctrl-btn{
+  width:100%;padding:15px;border-radius:8px;
+  font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  font-family:'Rajdhani',sans-serif;
+  border:1px solid transparent;position:relative;overflow:hidden;
+}
+.ctrl-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,transparent 60%);
+  pointer-events:none;
+}
+.btn-green{background:var(--green-bg);color:var(--green-t);border-color:var(--green)44;box-shadow:0 0 12px var(--green)18}
+.btn-yellow{background:var(--yellow-bg);color:var(--yellow-t);border-color:var(--yellow)44;box-shadow:0 0 12px var(--yellow)18}
+.btn-purple{background:var(--purple-bg);color:var(--purple-t);border-color:var(--purple)44;box-shadow:0 0 12px var(--purple)18}
+.btn-blue{background:#00b4d814;color:var(--blue-t);border-color:var(--blue)44;box-shadow:0 0 12px var(--blue)18}
+.btn-gray{background:transparent;border-color:var(--txt5);color:var(--txt3)}
+
+/* ─── TOGGLE ────────────────────────── */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);border-radius:8px;padding:11px 14px;border:1px solid var(--border);
+}
+.t-lbl{font-size:12px;font-weight:700;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:.03em}
+.t-sub{font-size:9px;color:var(--txt4);text-transform:uppercase;letter-spacing:.06em;font-family:'Rajdhani',sans-serif}
+.toggle-switch{
+  width:40px;height:22px;border-radius:3px;cursor:pointer;
+  transition:background .25s;background:var(--bg3);border:1px solid var(--bg5);
+  position:relative;flex-shrink:0;
+}
+.toggle-switch.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--accent)66}
+.toggle-knob{
+  position:absolute;top:2px;left:2px;width:16px;height:16px;
+  border-radius:2px;background:#fff;transition:left .2s;
+}
+.toggle-switch.on .toggle-knob{left:20px}
+
+/* ─── WOCHE ─────────────────────────── */
+#week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
+.day-col{text-align:center}
+.day-name{font-size:9px;color:var(--txt4);font-weight:700;margin-bottom:4px;font-family:'Rajdhani',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.day-bar-wrap{height:70px;background:var(--bg3);border-radius:4px;position:relative;overflow:hidden;margin-bottom:3px}
+.day-bar{position:absolute;bottom:0;left:0;right:0;border-radius:3px 3px 0 0;transition:height .5s}
+.day-val{font-size:8px;font-weight:700;font-family:'Share Tech Mono',monospace}
+.day-today .day-name{color:var(--accent)}
+.day-today .day-bar-wrap{border:1px solid var(--accent)55}
+#week-summary{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.week-stat{background:var(--bg3);border-radius:6px;padding:10px 12px;border:1px solid var(--border)}
+.week-stat .wlbl{font-size:9px;color:var(--txt4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-family:'Rajdhani',sans-serif}
+.week-stat .wval{font-size:17px;font-weight:700;font-family:'Share Tech Mono',monospace}
+
+/* ─── LOG ───────────────────────────── */
+#log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+#reset-btn{
+  background:none;border:1px solid var(--border);border-radius:5px;
+  color:var(--txt4);font-size:10px;padding:4px 10px;font-family:'Rajdhani',sans-serif;
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+}
+#log-empty{font-size:12px;color:var(--txt4);text-align:center;padding:12px 0;font-family:'Rajdhani',sans-serif}
+#log-list{max-height:240px;overflow-y:auto}
+.log-entry{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border2);align-items:flex-start}
+.log-time{font-size:11px;color:var(--accent);min-width:38px;font-family:'Share Tech Mono',monospace;flex-shrink:0}
+.log-action{font-size:13px;color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:600}
+.log-note{font-size:10px;color:var(--txt4);margin-top:1px;font-family:'Rajdhani',sans-serif}
+
+/* ─── REF CARD ──────────────────────── */
+.ref-row{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--border2)}
+.ref-row span:first-child{font-size:11px;color:var(--txt4);font-family:'Rajdhani',sans-serif;font-weight:600}
+.ref-row span:last-child{font-size:11px;font-weight:700;color:var(--txt2);font-family:'Share Tech Mono',monospace}
+
+/* ─── SHIFT CARD ────────────────────── */
+#shift-card{margin-bottom:10px}
+.shift-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--border2)}
+.shift-row span:first-child{font-size:11px;color:var(--txt4);font-family:'Rajdhani',sans-serif;font-weight:600}
+.shift-row span:last-child{font-size:13px;font-weight:700;font-family:'Share Tech Mono',monospace;color:var(--txt2)}
+
+/* ─── PAGE ──────────────────────────── */
+.page{display:none}
+.page.active{display:block}
+
+/* ─── GPS ───────────────────────────── */
+#gps-banner{
+  display:none;border-radius:8px;padding:13px 15px;margin-bottom:10px;
+  border:1px solid var(--accent);
+  background:linear-gradient(135deg,var(--accent)18,transparent);
+  animation:pulse-border 1.2s infinite;
+}
+@keyframes pulse-border{0%,100%{border-color:var(--accent)}50%{border-color:var(--accent)66}}
+#gps-banner .gps-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+#gps-banner .gps-icon{font-size:22px}
+#gps-banner .gps-msg{font-size:14px;font-weight:700;color:var(--accent2);flex:1;font-family:'Rajdhani',sans-serif;letter-spacing:.04em}
+#gps-banner .gps-sub{font-size:10px;color:var(--accent);margin-top:1px;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.08em}
+#gps-banner .gps-btns{display:flex;gap:7px}
+#gps-banner .gps-btns button{
+  flex:1;padding:10px;border-radius:6px;font-size:13px;
+  font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;border:none;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+#gps-status{
+  display:flex;align-items:center;gap:7px;padding:8px 12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:7px;
+  margin-bottom:10px;font-size:10px;color:var(--txt4);
+  font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;
+}
+#gps-dot{width:7px;height:7px;border-radius:50%;background:var(--txt5);flex-shrink:0}
+#gps-dot.active{background:var(--green);box-shadow:0 0 8px var(--green);animation:gps-blink 1s infinite}
+#gps-dot.searching{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:gps-blink .5s infinite}
+@keyframes gps-blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ─── DIENST ────────────────────────── */
+.dienst-seg{
+  display:grid;grid-template-columns:72px 72px 1fr 32px;gap:6px;align-items:center;
+  margin-bottom:5px;background:var(--bg3);border-radius:6px;padding:8px 10px;
+  border:1px solid var(--border);
+}
+.dienst-seg input,.dienst-seg select{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;color:var(--txt);font-size:12px;font-family:'Share Tech Mono',monospace;
+  padding:5px 6px;width:100%;outline:none;
+}
+.dienst-seg select{font-family:'Exo 2',sans-serif;font-size:11px}
+.del-seg{background:none;border:none;color:var(--txt4);font-size:16px;cursor:pointer;padding:2px;line-height:1;flex-shrink:0}
+.del-seg:active{transform:scale(.9)}
+#dienst-result{border-radius:8px;padding:12px 14px;margin-top:10px;display:none}
+#dienst-result.ok{background:var(--green-bg);border:1px solid var(--green)44;border-left:3px solid var(--green)}
+#dienst-result.warn{background:var(--yellow-bg);border:1px solid var(--yellow)44;border-left:3px solid var(--yellow)}
+#dienst-result.err{background:var(--red-bg);border:1px solid var(--red)44;border-left:3px solid var(--red)}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid var(--border2);font-size:11px}
+.result-row span:first-child{color:var(--txt4);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.03em}
+.result-row span:last-child{font-weight:700;font-family:'Share Tech Mono',monospace}
+.result-ok{color:var(--green-t)}
+.result-warn{color:var(--yellow-t)}
+.result-err{color:var(--red-t)}
+
+/* ─── HIST ──────────────────────────── */
+.hist-entry{border-radius:8px;padding:10px 13px;margin-bottom:7px;cursor:pointer;border:1px solid transparent;transition:all .2s}
+.hist-entry.ok{background:var(--green-bg);border-color:var(--green)33;border-left:3px solid var(--green)}
+.hist-entry.warn{background:var(--yellow-bg);border-color:var(--yellow)33;border-left:3px solid var(--yellow)}
+.hist-entry.err{background:var(--red-bg);border-color:var(--red)33;border-left:3px solid var(--red)}
+.hist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.hist-name{font-size:13px;font-weight:700;color:var(--txt)}
+.hist-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.hist-badge.ok{background:#22c55e22;color:#22c55e}
+.hist-badge.warn{background:#f59e0b22;color:#f59e0b}
+.hist-badge.err{background:#ef444422;color:#ef4444}
+.hist-detail{font-size:11px;color:var(--txt4);line-height:1.6}
+.hist-violations{font-size:11px;color:#ef4444;margin-top:3px;font-weight:600}
+.hist-expanded{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)}
+.hist-entry.expanded .hist-expanded{display:block}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+  <span id="header-logo">🚌</span>
+  <div>
+    <h1>LENK<span>ZEIT</span></h1>
+    <p>MTV · EU-VO 561/2006 · VWG</p>
+  </div>
+  <div id="status-badge">
+    <div id="status-dot"></div>
+    <span id="status-text">GESTOPPT</span>
+  </div>
+</div>
+
+<!-- Header actions: theme, notif, shift start -->
+<div id="header-actions">
+  <div id="shift-start-row">
+    <label>⏱ Schicht:</label>
+    <input type="time" id="shift-start" value="">
+  </div>
+  <button id="notif-btn" onclick="toggleNotif()" title="Benachrichtigungen">🔔</button>
+  <button id="theme-btn" onclick="toggleTheme()" title="Design wechseln">☀️</button>
+</div>
+
+<!-- Navigation tabs -->
+<div id="top-tabs">
+  <button class="tab-btn active" onclick="showPage('heute')">📊 Heute</button>
+  <button class="tab-btn" onclick="showPage('dienst')">📝 Dienst</button>
+  <button class="tab-btn" onclick="showPage('woche')">📅 Woche</button>
+  <button class="tab-btn" onclick="showPage('protokoll')">📋 Protokoll</button>
+  <button class="tab-btn" onclick="showPage('regeln')">📖 Regeln</button>
+</div>
+
+<!-- ════════════════════ PAGE: HEUTE ════════════════════ -->
+<div class="page active" id="page-heute">
+
+  <!-- GPS Status -->
+  <div id="gps-status">
+    <div id="gps-dot"></div>
+    <span id="gps-txt">GPS inaktiv — </span>
+    <button onclick="toggleGPS()" id="gps-toggle-btn" style="background:none;border:none;
+      color:var(--blue);font-size:11px;font-weight:700;font-family:'Sora',sans-serif;
+      cursor:pointer;padding:0;margin-left:2px">Aktivieren</button>
+    <span id="gps-speed" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700"></span>
+  </div>
+
+  <!-- GPS Pause Banner (einzige manuelle Bestätigung) -->
+  <div id="gps-banner">
+    <div class="gps-top">
+      <span class="gps-icon" id="gps-banner-icon">☕</span>
+      <div>
+        <div class="gps-msg" id="gps-banner-msg">Fahrzeug steht</div>
+        <div class="gps-sub" id="gps-banner-sub">Was ist der Grund?</div>
+      </div>
+    </div>
+    <div class="gps-btns" id="gps-btns-container">
+      <button id="gps-btn-wende" onclick="gpsWende()"
+        style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;font-family:Sora,sans-serif;cursor:pointer;border:none;background:#38bdf822;color:#7dd3fc;outline:1px solid #38bdf844">🔄 Wende</button>
+      <button id="gps-btn-stau" onclick="gpsStau()"
+        style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;font-family:Sora,sans-serif;cursor:pointer;border:none;background:#ef444422;color:#fca5a5;outline:1px solid #ef444444">🚦 Stau</button>
+      <button id="gps-btn-pause" onclick="gpsPause()"
+        style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;font-family:Sora,sans-serif;cursor:pointer;border:none;background:#f59e0b22;color:#fcd34d;outline:1px solid #f59e0b44">☕ Pause</button>
+    </div>
+  </div>
+
+    <!-- Live Timer -->
+  <div id="live-timer">
+    <div class="lbl" id="timer-label">Lenkzeit</div>
+    <div class="time mono" id="timer-display">00:00:00</div>
+    <div id="shift-elapsed"></div>
+  </div>
+
+  <!-- Shift overview card -->
+  <div class="card" id="shift-card">
+    <div class="section-lbl">Schichtübersicht</div>
+    <div class="shift-row"><span>Schichtbeginn</span><span id="sh-start">—</span></div>
+    <div class="shift-row"><span>Schichtdauer bisher</span><span id="sh-duration">—</span></div>
+    <div class="shift-row"><span>Lenkzeit (gesamt)</span><span id="sh-drive">0m</span></div>
+    <div class="shift-row"><span>Pausenzeit (gesamt)</span><span id="sh-break">0m</span></div>
+    <div class="shift-row"><span>Früheste Dienstende</span><span id="sh-end">—</span></div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-card" id="card-today">
+    <div style="position:relative;flex-shrink:0">
+      <canvas id="ring-today" width="72" height="72"></canvas>
+      <div id="pct-today" class="mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#22c55e">0%</div>
+    </div>
+    <div class="stat-info">
+      <div class="stat-lbl">Tageslenkzeit</div>
+      <div class="stat-val mono" id="val-today" style="color:#22c55e">0m</div>
+    </div>
+    <div class="stat-right">
+      <div class="stat-rem-lbl">verbleibend</div>
+      <div class="stat-rem mono" id="rem-today">9h 0m</div>
+      <div class="stat-of" id="max-today">von 9h 0m</div>
+    </div>
+  </div>
+
+  <div class="stat-card" id="card-cont">
+    <div style="position:relative;flex-shrink:0">
+      <canvas id="ring-cont" width="72" height="72"></canvas>
+      <div id="pct-cont" class="mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#38bdf8">0%</div>
+    </div>
+    <div class="stat-info">
+      <div class="stat-lbl">Lenkzeit am Stück</div>
+      <div class="stat-val mono" id="val-cont" style="color:#38bdf8">0m</div>
+    </div>
+    <div class="stat-right">
+      <div class="stat-rem-lbl">verbleibend</div>
+      <div class="stat-rem mono" id="rem-cont">4h 30m</div>
+      <div class="stat-of">von 4h 30m</div>
+    </div>
+  </div>
+
+  <div class="stat-card" id="card-rest">
+    <div style="position:relative;flex-shrink:0">
+      <canvas id="ring-rest" width="72" height="72"></canvas>
+      <div id="pct-rest" class="mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#818cf8">0%</div>
+    </div>
+    <div class="stat-info">
+      <div class="stat-lbl">Ruhezeit</div>
+      <div class="stat-val mono" id="val-rest" style="color:#818cf8">0m</div>
+    </div>
+    <div class="stat-right">
+      <div class="stat-rem-lbl">verbleibend</div>
+      <div class="stat-rem mono" id="rem-rest">11h 0m</div>
+      <div class="stat-of">von 11h 0m</div>
+    </div>
+  </div>
+
+  <!-- Pause Status -->
+  <div class="card" id="pause-card">
+    <div class="section-lbl">Pausenstatus</div>
+    <div id="short-pause" style="display:none">
+      <div class="pause-row"><span>Benötigt (1/6 Lenkzeit)</span><span class="mono" id="short-req" style="color:var(--txt)">0m</span></div>
+      <div class="pause-row"><span>Angerechnet (≥10 Min)</span><span class="mono" id="short-have" style="color:#f59e0b">0m</span></div>
+      <div id="short-progress"><div id="short-bar"></div></div>
+      <div style="font-size:11px;color:var(--txt4);margin-top:6px">Pausen &lt; 10 Min werden nicht angerechnet</div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert" id="alert-danger">🚨 <span>4,5h Lenkzeit erreicht — sofort Pause!</span></div>
+  <div class="alert" id="alert-warn">⚠️ <span id="alert-warn-txt">Pause bald nötig</span></div>
+  <div class="alert" id="alert-ok">✅ <span>Pause erfüllt — du kannst weiterfahren!</span></div>
+  <div class="alert" id="alert-short">ℹ️ <span>Aktuelle Pause unter 10 Min — wird nicht angerechnet</span></div>
+
+  <!-- Controls -->
+  <div id="controls"></div>
+
+  <!-- Toggles -->
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+    <div class="toggle-row">
+      <div><div class="t-lbl">Verlängerte Tageslenkzeit (10h)</div><div class="t-sub">max. 2× pro Woche</div></div>
+      <div class="toggle-switch" id="ext-toggle" onclick="toggleExtended()"><div class="toggle-knob"></div></div>
+    </div>
+  </div>
+
+</div><!-- /page-heute -->
+
+<!-- ════════════════════ PAGE: DIENST ════════════════════ -->
+<div class="page" id="page-dienst">
+
+  <!-- PDF Text Import -->
+  <div class="card" id="import-card">
+    <div class="section-lbl">📋 Dienstkarte einfügen</div>
+    <p style="font-size:12px;color:var(--txt4);margin-bottom:10px;line-height:1.6">
+      Öffne deine Dienstkarte als PDF, markiere den gesamten Text (<strong>Strg+A</strong> oder lang drücken → Alles auswählen), kopiere ihn und füge ihn hier ein:
+    </p>
+    <textarea id="pdf-text" placeholder="Text hier einfügen..." style="width:100%;height:130px;
+      background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+      color:var(--txt);font-size:11px;padding:10px;font-family:'JetBrains Mono',monospace;
+      outline:none;resize:none;line-height:1.5"></textarea>
+    <button onclick="importFromText()" style="width:100%;padding:12px;border-radius:11px;margin-top:8px;
+      background:#38bdf822;border:1px solid #38bdf844;color:#7dd3fc;
+      font-size:13px;font-weight:700;font-family:'Sora',sans-serif">
+      🔍 Automatisch erkennen
+    </button>
+    <div id="import-feedback" style="display:none;margin-top:8px;font-size:12px;border-radius:8px;padding:8px 12px"></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border2);
+      font-size:10px;color:var(--txt4);text-align:center">
+      — oder manuell eingeben —
+    </div>
+  </div>
+
+  <!-- Eingabe -->
+  <div class="card">
+    <div class="section-lbl">Dienst eingeben</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div>
+        <div style="font-size:10px;color:var(--txt4);font-weight:600;margin-bottom:4px">DATUM</div>
+        <input type="date" id="d-datum" style="width:100%;background:var(--bg3);border:1px solid var(--border);
+          border-radius:8px;color:var(--txt);font-size:12px;padding:7px 10px;font-family:'Sora',sans-serif;outline:none">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--txt4);font-weight:600;margin-bottom:4px">DIENSTNAME</div>
+        <input type="text" id="d-name" placeholder="z.B. M003_1" style="width:100%;background:var(--bg3);border:1px solid var(--border);
+          border-radius:8px;color:var(--txt);font-size:12px;padding:7px 10px;font-family:'Sora',sans-serif;outline:none">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="font-size:10px;color:var(--txt4);font-weight:600;width:72px">VON</div>
+      <div style="font-size:10px;color:var(--txt4);font-weight:600;width:72px">BIS</div>
+      <div style="font-size:10px;color:var(--txt4);font-weight:600;flex:1">TÄTIGKEIT</div>
+    </div>
+    <div id="seg-list"></div>
+    <button onclick="addSeg()" style="width:100%;padding:10px;border-radius:10px;margin-top:4px;
+      background:var(--bg3);border:1px dashed var(--border);color:var(--txt4);
+      font-size:12px;font-weight:600;font-family:'Sora',sans-serif">
+      + Segment hinzufügen
+    </button>
+
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+      <div>
+        <div style="font-size:10px;color:var(--txt4);font-weight:600;margin-bottom:4px">MODUS</div>
+        <select id="d-mode" style="display:none" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+          color:var(--txt);font-size:12px;padding:7px 10px;font-family:'Sora',sans-serif;outline:none">
+          <option value="short" selected>Kurzstrecke (≤3 km)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--txt4);font-weight:600;margin-bottom:4px">RUHEZEIT DAVOR</div>
+        <input type="time" id="d-prev-end" placeholder="19:16" style="background:var(--bg3);border:1px solid var(--border);
+          border-radius:8px;color:var(--txt);font-size:12px;padding:7px 10px;
+          font-family:'JetBrains Mono',monospace;outline:none;width:100px">
+      </div>
+    </div>
+
+    <button onclick="auswerten()" style="width:100%;padding:13px;border-radius:11px;margin-top:12px;
+      background:#22c55e22;border:1px solid #22c55e44;color:#86efac;
+      font-size:14px;font-weight:700;font-family:'Sora',sans-serif">
+      🔍 Auswerten
+    </button>
+
+    <div id="dienst-result"></div>
+  </div>
+
+  <!-- Historie -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="section-lbl" style="margin-bottom:0">Diensthistorie</div>
+      <button onclick="clearDienstHistory()" style="background:none;border:1px solid var(--bg4);
+        border-radius:7px;color:var(--txt4);font-size:11px;padding:3px 9px;font-family:'Sora',sans-serif">
+        🗑 Löschen
+      </button>
+    </div>
+    <div id="hist-empty" style="font-size:12px;color:var(--txt4);text-align:center;padding:12px 0">
+      Noch keine ausgewerteten Dienste
+    </div>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE: WOCHE ════════════════════ -->
+<div class="page" id="page-woche">
+  <div class="card">
+    <div class="section-lbl">Wochenlenkzeit</div>
+    <div id="week-grid"></div>
+    <div id="week-summary"></div>
+  </div>
+  <div class="card">
+    <div class="section-lbl">Wöchentliche Ruhezeit</div>
+    <div class="pause-row">
+      <span>Vorgeschrieben</span><span class="mono" style="color:var(--txt2)">mind. 45h</span>
+    </div>
+    <div class="pause-row">
+      <span>Letzte Ruhezeit</span><span class="mono" id="week-last-rest" style="color:var(--blue)">—</span>
+    </div>
+    <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:8px 0">
+      <div id="weekly-rest-bar" style="height:100%;border-radius:3px;background:var(--purple);transition:width .5s;width:0%"></div>
+    </div>
+  </div>
+  <div class="card" style="text-align:center">
+    <button onclick="clearWeek()" style="font-size:12px;font-weight:600;color:var(--txt4);
+      padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:none;font-family:'Sora',sans-serif">
+      🗑 Woche zurücksetzen
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE: PROTOKOLL ════════════════════ -->
+<div class="page" id="page-protokoll">
+  <div class="card">
+    <div id="log-header">
+      <div class="section-lbl" style="margin-bottom:0">Tagesprotokoll</div>
+      <button id="reset-btn" onclick="resetDay()">Tag zurücksetzen</button>
+    </div>
+    <div style="height:10px"></div>
+    <div id="log-empty">Noch keine Einträge</div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE: REGELN ════════════════════ -->
+<div class="page" id="page-regeln">
+  <div class="card"><div class="section-lbl">Kurzstreckendienst (MTV)</div>
+    <div class="ref-row"><span>Voraussetzung</span><span>Ø Haltest. ≤ 3 km</span></div>
+    <div class="ref-row"><span>Gesamtpausenzeit</span><span>mind. 1/6 Lenkzeit</span></div>
+    <div class="ref-row"><span>Mindest-Kurzpause</span><span>≥ 10 Min je Pause</span></div>
+    <div class="ref-row"><span>Pausen &lt; 10 Min</span><span>nicht anrechenbar</span></div>
+    <div class="ref-row"><span>Tageslenkzeit</span><span>max. 9h (2×10h)</span></div>
+    <div class="ref-row"><span>Tägliche Ruhezeit</span><span>mind. 11h</span></div>
+  </div>
+  <div class="card">
+    <div class="section-lbl">Hinweis</div>
+    <p style="font-size:12px;color:var(--txt4);line-height:1.6">
+      Diese App dient als Hilfsmittel. Die rechtlich verbindlichen Vorschriften findest du im
+      Manteltarifvertrag (MTV) und der EU-Verordnung 561/2006. Im Zweifel gilt immer die strengere Regelung.
+    </p>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ROBUSTER SPEICHER — funktioniert auf iOS Safari / GitHub Pages
+// Versucht localStorage, fällt auf sessionStorage, dann Memory zurück
+// ══════════════════════════════════════════════════════
+const Store = (function(){
+  // Test welcher Speicher verfügbar ist
+  function testStorage(s){
+    try{ const k='__test__'; s.setItem(k,'1'); s.removeItem(k); return true; }catch(e){ return false; }
+  }
+  const useLocal   = testStorage(window.localStorage);
+  const useSession = !useLocal && testStorage(window.sessionStorage);
+  const mem = {};
+  if(!useLocal && !useSession) console.warn('Kein persistenter Speicher verfügbar — Daten gehen beim Schließen verloren');
+
+  return {
+    get(k){
+      try{
+        if(useLocal)   return window.localStorage.getItem(k);
+        if(useSession) return sessionStorage.getItem(k);
+        return mem[k]||null;
+      }catch(e){ return mem[k]||null; }
+    },
+    set(k,v){
+      try{
+        if(useLocal)   { window.localStorage.setItem(k,v); return; }
+        if(useSession) { sessionStorage.setItem(k,v); return; }
+        mem[k]=v;
+      }catch(e){
+        try{ mem[k]=v; }catch(e2){}
+      }
+    },
+    remove(k){
+      try{
+        if(useLocal)   window.localStorage.removeItem(k);
+        if(useSession) sessionStorage.removeItem(k);
+        delete mem[k];
+      }catch(e){ delete mem[k]; }
+    },
+    available(){ return useLocal?'localStorage':useSession?'sessionStorage':'memory'; }
+  };
+})();
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+const RULES = {
+  maxDriveDaily:      9 * 3600,   // §7 Abs.6: max 8h, verlängert 9h
+  maxDriveExtended:  10 * 3600,   // §7 Abs.7: in 2 Schichten/Woche 10h
+  maxDriveContinuous: 4.5*3600,   // §7 Abs.8: nach 4,5h mind. 30 Min Pause
+  minDailyRest:      11 * 3600,
+  minWeeklyRest:     45 * 3600,
+  // MTV §7 Abs.4: Füll-/Stand-/Wendezeiten ≥10 Min
+  // zählen als Pause wenn Summe ≥45 Min in der Schicht
+  wendeMinSingle:    10 * 60,     // Einzelne Wendezeit mind. 10 Min
+  wendeMinTotal:     45 * 60,     // Gesamtsumme mind. 45 Min → Pausenregel erfüllt
+  blockpause:        30 * 60,     // Blockpause 30 Min → alternativ zu 45 Min Wenden
+  maxPauseAbzug:     40 * 60,     // Max. 40 Min werden abgezogen (§7 Abs.4)
+};
+
+let S = loadState();
+let logEntries = loadLog();
+let weekData = loadWeek();
+let tickInterval = null;
+let notifEnabled = Store.get('notif')==='1';
+let lightMode = Store.get('theme')==='light';
+let notifSent = {};
+
+function defaultState(){
+  return {
+    mode:'short', useExtended:false, status:'stopped',
+    driveToday:0, driveContinuous:0, restTime:0,
+    splits:[], currentBreakSec:0,
+    validShortBreaks:0, shortBreakBuf:0,
+    elapsed:0, shiftStart:'', totalBreakToday:0, segmentStartTs:null,
+    wendeTotal:0,        // §7 Abs.4: Summe aller Wendezeiten ≥10 Min heute
+    currentWendeSec:0,   // laufende Wendezeit
+    status_prev:'',      // vorheriger Status für Wende-Erkennung
+  };
+}
+function loadState(){ try{ const v=Store.get('lzt_state'); return v?{...defaultState(),...JSON.parse(v)}:defaultState(); }catch(e){return defaultState();} }
+function saveState(){ Store.set('lzt_state',JSON.stringify(S)); }
+function loadLog(){ try{ const v=Store.get('lzt_log'); return v?JSON.parse(v):[]; }catch(e){return[];} }
+function saveLog(){ Store.set('lzt_log',JSON.stringify(logEntries.slice(0,60))); }
+function loadWeek(){ try{ const v=Store.get('lzt_week'); return v?JSON.parse(v):emptyWeek(); }catch(e){return emptyWeek();} }
+function emptyWeek(){
+  const days=[]; const today=new Date();
+  for(let i=6;i>=0;i--){ const d=new Date(today); d.setDate(today.getDate()-i);
+    days.push({date:d.toISOString().slice(0,10), drive:0, label:['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]}); }
+  return {days, lastRestSec:0};
+}
+function saveWeek(){ Store.set('lzt_week',JSON.stringify(weekData)); }
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function fmt(s){ s=Math.max(0,s|0); return `${pad(s/3600|0)}:${pad((s%3600)/60|0)}:${pad(s%60)}`; }
+function fmtS(s){ s=Math.max(0,s|0); const h=s/3600|0,m=(s%3600)/60|0; return h>0?`${h}h ${m}m`:`${m}m`; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function timeNow(){ return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}); }
+function addMinutesToTime(timeStr, totalSec){
+  if(!timeStr) return '—';
+  const [h,m]=timeStr.split(':').map(Number);
+  const d=new Date(); d.setHours(h,m,0,0); d.setSeconds(d.getSeconds()+totalSec);
+  return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+}
+function elapsedSinceShift(){
+  if(!S.shiftStart) return 0;
+  const [h,m]=S.shiftStart.split(':').map(Number);
+  const start=new Date(); start.setHours(h,m,0,0);
+  return Math.max(0,(Date.now()-start.getTime())/1000|0);
+}
+
+// ══════════════════════════════════════════════════════
+// RING
+// ══════════════════════════════════════════════════════
+function drawRing(id,value,max,baseColor){
+  const canvas=document.getElementById(id); if(!canvas) return {pct:0,col:baseColor};
+  const ctx=canvas.getContext('2d'), size=72, stroke=6, r=(size-stroke*2)/2;
+  const pct=Math.min(value/max,1);
+  const col=pct>0.95?'#ef4444':pct>0.85?'#f59e0b':baseColor;
+  ctx.clearRect(0,0,size,size);
+  ctx.beginPath(); ctx.arc(size/2,size/2,r,-Math.PI/2,1.5*Math.PI);
+  ctx.strokeStyle=lightMode?'#e2e8f0':'#1e293b'; ctx.lineWidth=stroke; ctx.lineCap='round'; ctx.stroke();
+  if(pct>0){
+    ctx.beginPath(); ctx.arc(size/2,size/2,r,-Math.PI/2,-Math.PI/2+pct*2*Math.PI);
+    ctx.strokeStyle=col; ctx.lineWidth=stroke; ctx.lineCap='round'; ctx.stroke();
+  }
+  return {pct,col};
+}
+
+// ══════════════════════════════════════════════════════
+// PAUSE LOGIC
+// ══════════════════════════════════════════════════════
+// MTV §7 Abs.4: Wendezeiten ≥10 Min zählen als Pausenersatz
+// wenn Gesamtsumme ≥45 Min ODER Blockpause ≥30 Min vorhanden
+function checkPauseOk(pausen, wendeTotal){
+  // Option 1: Blockpause ≥30 Min
+  if(pausen.some(p=>p>=30*60)) return true;
+  // Option 2: 2×20 Min Pausen
+  if(pausen.filter(p=>p>=20*60).length>=2) return true;
+  // Option 3: 3×15 Min Pausen
+  if(pausen.filter(p=>p>=15*60).length>=3) return true;
+  // Option 4 (MTV §7 Abs.4): Wendezeiten ≥10 Min gesamt ≥45 Min
+  if(wendeTotal>=RULES.wendeMinTotal) return true;
+  // Option 5: Kombination Pausen + Wenden ≥30 Min gesamt
+  const pauseTotal=pausen.reduce((a,b)=>a+b,0);
+  if(pauseTotal+wendeTotal>=30*60 && pausen.some(p=>p>=15*60)) return true;
+  return false;
+}
+
+function normalStatus(){
+  const runningPause = S.status==='break' && S.currentBreakSec>0 ? S.currentBreakSec : 0;
+  const runningWende = S.status==='wende' && S.currentWendeSec>0 ? S.currentWendeSec : 0;
+  const all = runningPause>0 ? [...S.splits, runningPause] : S.splits;
+  const wendeTotal = S.wendeTotal + (runningWende>=RULES.wendeMinSingle ? runningWende : 0);
+  return {
+    total: all.reduce((a,b)=>a+b,0),
+    wendeTotal,
+    ok: checkPauseOk(all, wendeTotal),
+    opt1:{have:all.filter(p=>p>=30*60).length, need:1},
+    opt2:{have:all.filter(p=>p>=20*60).length, need:2},
+    opt3:{have:all.filter(p=>p>=15*60).length, need:3},
+    optWende:{have:wendeTotal, need:RULES.wendeMinTotal},
+  };
+}
+
+function startWende(){
+  S.currentWendeSec=0;
+  S.status='wende'; S.elapsed=0; S.segmentStartTs=Date.now();
+  startTick(); addLog('🔄 Wendezeit begonnen'); saveState(); render();
+}
+
+function endWende(){
+  const dur=S.currentWendeSec;
+  if(dur>=RULES.wendeMinSingle){
+    S.wendeTotal+=dur;
+    addLog('🔄 Wendezeit beendet',`${fmtS(dur)} — angerechnet (§7 Abs.4), Summe: ${fmtS(S.wendeTotal)}`);
+  } else {
+    addLog('🔄 Wendezeit beendet',`${fmtS(dur)} — unter 10 Min, nicht angerechnet`);
+  }
+  S.currentWendeSec=0;
+  S.status='driving'; S.elapsed=0; S.segmentStartTs=Date.now();
+  saveState(); render();
+}
+
+function checkNormalOk(arr){ return checkPauseOk(arr, S.wendeTotal); }
+
+// ══════════════════════════════════════════════════════
+// TICK
+// ══════════════════════════════════════════════════════
+function startTick(){
+  clearInterval(tickInterval);
+  if(!S.segmentStartTs) S.segmentStartTs = Date.now() - (S.elapsed * 1000);
+  tickInterval=setInterval(()=>{
+    syncFromTimestamp();
+    checkNotifications();
+    render();
+  },1000);
+}
+function stopTick(){ clearInterval(tickInterval); }
+
+function syncFromTimestamp(){
+  if(S.status==='stopped'||!S.segmentStartTs) return;
+  const nowSec = Math.floor((Date.now() - S.segmentStartTs) / 1000);
+  const diff = nowSec - S.elapsed;
+  if(diff <= 0) return;
+  S.elapsed = nowSec;
+  if(S.status==='driving'){
+    S.driveToday      += diff;
+    S.driveContinuous += diff;
+  } else if(S.status==='break'){
+    S.currentBreakSec  += diff;
+    S.shortBreakBuf    += diff;
+    S.totalBreakToday  += diff;
+  } else if(S.status==='rest'){
+    S.restTime += diff;
+  } else if(S.status==='wende'){
+    S.currentWendeSec += diff;
+  }
+  if(S.elapsed % 10 === 0) saveState();
+}
+
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && S.status!=='stopped'){
+    syncFromTimestamp();
+    render();
+    showToast('🔄 Zeit aktualisiert');
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════════
+function toggleNotif(){
+  if(!notifEnabled){
+    if('Notification' in window){
+      Notification.requestPermission().then(p=>{
+        if(p==='granted'){ notifEnabled=true; Store.set('notif','1'); renderHeader(); showToast('🔔 Benachrichtigungen aktiviert'); }
+        else { showToast('❌ Bitte Benachrichtigungen erlauben'); }
+      });
+    }
+  } else { notifEnabled=false; Store.set('notif','0'); renderHeader(); showToast('🔕 Benachrichtigungen deaktiviert'); }
+}
+function sendNotif(title,body,key){
+  if(!notifEnabled||notifSent[key]) return;
+  notifSent[key]=true;
+  if('Notification' in window&&Notification.permission==='granted')
+    new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚌</text></svg>'});
+}
+function checkNotifications(){
+  if(S.status==='driving'){
+    const rem=RULES.maxDriveContinuous-S.driveContinuous;
+    // 4,5h-Grenze
+    if(rem<=900&&rem>0) sendNotif('⚠️ Pause bald nötig',`Noch ${fmtS(rem)} bis zur Pflichtpause`,'warn15');
+    if(S.driveContinuous>=RULES.maxDriveContinuous) sendNotif('🚨 Sofort Pause!','4,5h Lenkzeit erreicht — Fahrt unterbrechen!','danger');
+    // Tageslenkzeit
+    const maxD=S.useExtended?RULES.maxDriveExtended:RULES.maxDriveDaily;
+    if(S.driveToday>=maxD-3600&&S.driveToday<maxD-1800) sendNotif('⚠️ Tageslenkzeit','Noch 1 Stunde bis zur Tageshöchstzeit','daily60');
+    if(S.driveToday>=maxD-1800) sendNotif('🚨 Tageslenkzeit kritisch',`Noch ${fmtS(maxD-S.driveToday)} — bald Dienstende!`,'daily30');
+    if(S.driveToday>=maxD) sendNotif('🚨 Tageshöchstzeit erreicht!','Sofort Dienst beenden!','dailyOver');
+  }
+  if(S.status==='break'||S.status==='wende'){
+    // Kurzstrecke: 1/6 der Lenkzeit erfüllt?
+    const req=S.driveToday/6;
+    const have=S.validShortBreaks+(S.currentBreakSec>=600?S.currentBreakSec:0)+(S.wendeTotal);
+    if(have>=req&&req>0&&!notifSent['breakOk']) sendNotif('✅ Pause ausreichend','1/6 der Lenkzeit erreicht — du kannst weiterfahren','breakOk');
+  }
+  if(S.status==='rest'&&S.restTime>=RULES.minDailyRest)
+    sendNotif('🌅 Ruhezeit erreicht','11h Ruhezeit vollständig — Dienst kann beginnen','restOk');
+}
+// ══════════════════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════════════════
+function startDriving(){
+  notifSent={};
+  if(!S.shiftStart){ const now2=new Date(); S.shiftStart=`${pad(now2.getHours())}:${pad(now2.getMinutes())}`; document.getElementById('shift-start').value=S.shiftStart; }
+  S.status='driving'; S.elapsed=0; S.segmentStartTs=Date.now(); startTick(); addLog('🚌 Lenkzeit gestartet'); saveState(); render();
+}
+function startBreak(){
+  S.currentBreakSec=0; S.shortBreakBuf=0; S.status='break'; S.elapsed=0; S.segmentStartTs=Date.now();
+  startTick(); addLog('☕ Pause begonnen',`nach ${fmtS(S.driveContinuous)} Lenkzeit`); saveState(); render();
+}
+function endBreak(){
+  const dur=S.currentBreakSec;
+  if(false){
+    const ns=dur>0?[...S.splits,dur]:S.splits;
+    if(checkNormalOk(ns)){ S.driveContinuous=0; S.splits=[]; S.currentBreakSec=0; addLog('✅ Pause angerechnet',`${fmtS(dur)} — Block zurückgesetzt`); }
+    else { S.splits=ns; S.currentBreakSec=0; addLog('⏸ Teilpause gespeichert',`${fmtS(dur)} — noch nicht ausreichend`); }
+  } else {
+    if(dur>=10*60){ S.validShortBreaks+=dur; addLog('✅ Kurzpause angerechnet',fmtS(dur)); }
+    else addLog('⚠️ Kurzpause zu kurz',`${fmtS(dur)} — mind. 10 Min nötig`);
+    S.shortBreakBuf=0; S.currentBreakSec=0;
+  }
+  S.status='driving'; S.elapsed=0; S.segmentStartTs=Date.now(); saveState(); render();
+}
+function startRest(){
+  if(S.status==='break'&&S.currentBreakSec>0&&S.mode==='normal') S.splits=[...S.splits,S.currentBreakSec];
+  S.currentBreakSec=0; S.shortBreakBuf=0; S.status='rest'; S.elapsed=0; S.segmentStartTs=Date.now();
+  startTick(); addLog('🌙 Ruhezeit begonnen'); saveState(); render();
+}
+function endRest(){
+  const restOk=S.restTime>=RULES.minDailyRest;
+  weekData.lastRestSec=S.restTime;
+  // save today's drive to week
+  const todayStr=new Date().toISOString().slice(0,10);
+  const wd=weekData.days.find(d=>d.date===todayStr);
+  if(wd) wd.drive=S.driveToday; else weekData.days.push({date:todayStr,drive:S.driveToday,label:['So','Mo','Di','Mi','Do','Fr','Sa'][new Date().getDay()]});
+  saveWeek();
+  if(restOk){
+    S.driveToday=0; S.driveContinuous=0; S.splits=[]; S.currentBreakSec=0;
+    S.validShortBreaks=0; S.shortBreakBuf=0; S.restTime=0; S.totalBreakToday=0; S.shiftStart='';
+    document.getElementById('shift-start').value='';
+    addLog('🌅 Ruhezeit beendet','Tageskonto zurückgesetzt');
+  } else addLog('⚠️ Ruhezeit beendet',`nur ${fmtS(S.restTime)} — zu kurz (mind. 11h)`);
+  S.status='stopped'; S.elapsed=0; S.segmentStartTs=null; stopTick(); notifSent={}; saveState(); saveLog(); render();
+}
+function stopAll(){ addLog('⏹ Dienst beendet'); S.status='stopped'; S.elapsed=0; S.segmentStartTs=null; stopTick(); saveState(); saveLog(); render(); }
+function setMode(m){ S.mode='short'; saveState(); render(); }
+function toggleExtended(){ S.useExtended=!S.useExtended; saveState(); render(); }
+function resetDay(){
+  const todayStr=new Date().toISOString().slice(0,10);
+  const wd=weekData.days.find(d=>d.date===todayStr);
+  if(wd) wd.drive=S.driveToday; saveWeek();
+  S={...defaultState()}; logEntries=[]; notifSent={};
+  stopTick(); saveState(); saveLog();
+  document.getElementById('shift-start').value='';
+  addLog('🔄 Tag zurückgesetzt'); render();
+}
+function clearWeek(){ weekData=emptyWeek(); saveWeek(); renderWeek(); }
+
+function addLog(action,note=''){
+  logEntries.unshift({time:timeNow(),action,note,key:Date.now()});
+  if(logEntries.length>60) logEntries.pop();
+  saveLog();
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+let currentPage='heute';
+function showPage(id){
+  currentPage=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const ids=['heute','dienst','woche','protokoll','regeln'];
+    if(ids[i]===id) b.classList.add('active');
+  });
+  if(id==='woche') renderWeek();
+  if(id==='protokoll') renderLog();
+  if(id==='dienst'){ renderDienstHistory(); }
+}
+
+// ══════════════════════════════════════════════════════
+// THEME + TOAST
+// ══════════════════════════════════════════════════════
+function toggleTheme(){
+  lightMode=!lightMode;
+  Store.set('theme',lightMode?'light':'dark');
+  document.body.classList.toggle('light',lightMode);
+  document.getElementById('theme-btn').textContent=lightMode?'🌙':'☀️';
+  render();
+}
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast';
+    t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f1f5f9;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;transition:opacity .3s;font-family:Sora,sans-serif';
+    document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._to); t._to=setTimeout(()=>t.style.opacity='0',2500);
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+const SC={driving:'#22c55e',break:'#f59e0b',rest:'#818cf8',stopped:'#475569',wende:'#38bdf8'};
+const SL={driving:'LENKZEIT',break:'PAUSE',rest:'RUHEZEIT',stopped:'GESTOPPT',wende:'WENDE'};
+
+function renderHeader(){
+  const c=SC[S.status];
+  const badge=document.getElementById('status-badge');
+  badge.style.background=c+'22'; badge.style.border=`1px solid ${c}44`; badge.style.color=c;
+  document.getElementById('status-dot').style.cssText=`width:6px;height:6px;border-radius:50%;background:${c};box-shadow:0 0 7px ${c}`;
+  document.getElementById('status-text').textContent=SL[S.status];
+  document.getElementById('notif-btn').textContent=notifEnabled?'🔔':'🔕';
+}
+
+function renderRingCard(ringId,pctId,valId,remId,value,max,color){
+  const {pct,col}=drawRing(ringId,value,max,color);
+  const pe=document.getElementById(pctId), ve=document.getElementById(valId), re=document.getElementById(remId);
+  if(pe){pe.textContent=Math.round(pct*100)+'%';pe.style.color=col;}
+  if(ve){ve.textContent=fmtS(value);ve.style.color=col;}
+  if(re) re.textContent=fmtS(Math.max(0,max-value));
+}
+
+function render(){
+  if(currentPage!=='heute'){renderHeader();return;}
+  const maxDaily=S.useExtended?RULES.maxDriveExtended:RULES.maxDriveDaily;
+  renderHeader();
+
+  // Mode tabs
+  document.querySelectorAll('.mode-btn').forEach((b,i)=>{
+    b.classList.toggle('active',(i===0&&S.mode==='normal')||(i===1&&S.mode==='short'));
+  });
+
+  // Live timer
+  const lt=document.getElementById('live-timer');
+  if(S.status!=='stopped'){
+    lt.style.display='block';
+    const c=SC[S.status];
+    lt.style.border=`1px solid ${c}33`;
+    document.getElementById('timer-label').textContent=S.status==='driving'?'Lenkzeit':S.status==='break'?'Pause':'Ruhezeit';
+    document.getElementById('timer-display').style.color=c;
+    document.getElementById('timer-display').textContent=fmt(S.elapsed);
+    const se=S.shiftStart?`Schicht läuft seit ${S.shiftStart} · ${fmtS(elapsedSinceShift())} gesamt`:'';
+    document.getElementById('shift-elapsed').textContent=se;
+  } else lt.style.display='none';
+
+  // Shift card
+  const shiftSec=elapsedSinceShift();
+  document.getElementById('sh-start').textContent=S.shiftStart||'—';
+  document.getElementById('sh-duration').textContent=S.shiftStart?fmtS(shiftSec):'—';
+  document.getElementById('sh-drive').textContent=fmtS(S.driveToday);
+  document.getElementById('sh-break').textContent=fmtS(S.totalBreakToday);
+  document.getElementById('sh-end').textContent=S.shiftStart?addMinutesToTime(S.shiftStart, Math.max(shiftSec, S.driveToday+S.totalBreakToday)+RULES.minDailyRest):'—';
+
+  // Stat cards
+  renderRingCard('ring-today','pct-today','val-today','rem-today',S.driveToday,maxDaily,'#22c55e');
+  document.getElementById('max-today').textContent='von '+fmtS(maxDaily);
+  renderRingCard('ring-cont','pct-cont','val-cont','rem-cont',S.driveContinuous,RULES.maxDriveContinuous,'#38bdf8');
+  renderRingCard('ring-rest','pct-rest','val-rest','rem-rest',S.restTime,RULES.minDailyRest,'#818cf8');
+  ['today','cont','rest'].forEach(id=>{
+    const val=id==='today'?S.driveToday:id==='cont'?S.driveContinuous:S.restTime;
+    const mx=id==='today'?maxDaily:id==='cont'?RULES.maxDriveContinuous:RULES.minDailyRest;
+    const p=val/mx;
+    document.getElementById('card-'+id).style.borderColor=p>0.95?'#ef444466':p>0.85?'#f59e0b44':'var(--border)';
+  });
+
+  // Pause status
+  document.getElementById('short-pause').style.display='block';
+  if(false){
+    const nb=normalStatus();
+    document.getElementById('pause-total').textContent=fmtS(nb.total);
+    document.getElementById('pause-total').style.color=nb.ok?'#22c55e':'var(--txt)';
+
+    const sd=document.getElementById('splits-display');
+    const wendeOk=nb.wendeTotal>=RULES.wendeMinTotal;
+    sd.innerHTML=`
+      <div class="opt-row${wendeOk?' done':''}" style="border-top:1px solid var(--border2);margin-top:4px">
+        <span style="font-size:14px">${wendeOk?'✅':'🔄'}</span>
+        <span class="opt-lbl">Wendezeiten ≥10 Min (§7 Abs.4)</span>
+        <span class="opt-cnt" style="color:${wendeOk?'#22c55e':'var(--txt4)'}">${fmtS(nb.wendeTotal)}/${fmtS(RULES.wendeMinTotal)}</span>
+      </div>
+      ${S.splits.length>0?'<div style="margin-top:5px;font-size:11px;color:var(--txt4)">Teilpausen: '+S.splits.map(s=>'<span class=\"split-chip\">'+fmtS(s)+'</span>').join('')+'</div>':''}
+    `;
+  } else {
+    const req=Math.ceil(S.driveToday*1/6);
+    const have=S.validShortBreaks+(S.status==='break'&&S.shortBreakBuf>=10*60?S.shortBreakBuf:0);
+    const ok=have>=req&&req>0;
+    document.getElementById('short-req').textContent=fmtS(req);
+    const he=document.getElementById('short-have'); he.textContent=fmtS(have); he.style.color=ok?'#22c55e':'#f59e0b';
+    const bar=document.getElementById('short-bar');
+    bar.style.width=Math.min(req>0?have/req*100:0,100)+'%';
+    bar.style.background=ok?'#22c55e':'#f59e0b';
+  }
+
+  // Alerts
+  const nb2={ok:false};
+  const contWarn=S.driveContinuous>RULES.maxDriveContinuous*0.88;
+  const contDanger=S.driveContinuous>=RULES.maxDriveContinuous;
+  const shortReq=Math.ceil(S.driveToday/6);
+  const shortHave=S.validShortBreaks+(S.status==='break'&&S.shortBreakBuf>=10*60?S.shortBreakBuf:0);
+  showAlert('alert-danger',contDanger&&S.status==='driving');
+  showAlert('alert-warn',contWarn&&!contDanger&&S.status==='driving');
+  if(contWarn&&!contDanger) document.getElementById('alert-warn-txt').textContent=`Pause bald nötig — noch ${fmtS(RULES.maxDriveContinuous-S.driveContinuous)}`;
+  // Tageslenkzeit-Warnung
+  const maxD=S.useExtended?RULES.maxDriveExtended:RULES.maxDriveDaily;
+  const dailyWarn=S.driveToday>=maxD-1800&&S.driveToday<maxD;
+  const dailyOver=S.driveToday>=maxD;
+  if(dailyOver&&!contDanger){
+    showAlert('alert-danger',true);
+    document.querySelector('#alert-danger span').textContent='🚨 Tageshöchstzeit erreicht — Dienst sofort beenden!';
+  } else if(dailyWarn&&!contWarn&&!contDanger){
+    showAlert('alert-warn',true);
+    document.getElementById('alert-warn-txt').textContent=`Tageslenkzeit fast voll — noch ${fmtS(maxD-S.driveToday)}`;
+  }
+  showAlert('alert-ok',false);
+  showAlert('alert-short',S.status==='break'&&S.mode==='short'&&S.shortBreakBuf<10*60);
+
+  // Controls
+  const ctrl=document.getElementById('controls'); ctrl.innerHTML='';
+  if(S.status==='stopped') addBtn(ctrl,'🚌 Lenkzeit starten','btn-green',startDriving);
+  if(S.status==='driving'){
+    addBtn(ctrl,'🔄 Wendezeit starten','btn-blue',startWende);
+    addBtn(ctrl,'☕ Pause beginnen','btn-yellow',startBreak);
+    addBtn(ctrl,'🌙 Ruhezeit beginnen','btn-purple',startRest);
+    addBtn(ctrl,'⏹ Dienst beenden','btn-gray',stopAll);
+  }
+  if(S.status==='wende'){
+    addBtn(ctrl,'🚌 Weiterfahren','btn-green',endWende);
+    addBtn(ctrl,'☕ Zur Pause wechseln','btn-yellow',()=>{endWende();startBreak();});
+  }
+  if(S.status==='break'){
+    addBtn(ctrl,'🚌 Weiterfahren','btn-green',endBreak);
+    addBtn(ctrl,'🌙 Zur Ruhezeit wechseln','btn-purple',startRest);
+  }
+  if(S.status==='rest'){
+    const rok=S.restTime>=RULES.minDailyRest;
+    addBtn(ctrl,'🌅 Ruhezeit beenden'+(rok?'':` (noch ${fmtS(RULES.minDailyRest-S.restTime)})`),rok?'btn-green':'btn-gray',endRest);
+  }
+
+  // Extended toggle
+  document.getElementById('ext-toggle').classList.toggle('on',S.useExtended);
+}
+
+function renderWeek(){
+  // ensure today's date is in week
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(!weekData.days.find(d=>d.date===todayStr))
+    weekData.days.push({date:todayStr,drive:S.driveToday,label:['So','Mo','Di','Mi','Do','Fr','Sa'][new Date().getDay()]});
+  else {
+    const wd=weekData.days.find(d=>d.date===todayStr);
+    wd.drive=Math.max(wd.drive,S.driveToday);
+  }
+
+  const last7=weekData.days.slice(-7);
+  const maxDrive=Math.max(...last7.map(d=>d.drive),RULES.maxDriveDaily);
+  const totalWeekDrive=last7.reduce((a,d)=>a+d.drive,0);
+  const maxWeek=6*9*3600;
+
+  const grid=document.getElementById('week-grid');
+  grid.innerHTML=last7.map(d=>{
+    const pct=d.drive/maxDrive;
+    const isToday=d.date===todayStr;
+    const col=d.drive>RULES.maxDriveDaily*0.95?'#ef4444':d.drive>RULES.maxDriveDaily*0.85?'#f59e0b':'#22c55e';
+    return `<div class="day-col${isToday?' day-today':''}">
+      <div class="day-name">${d.label}</div>
+      <div class="day-bar-wrap">
+        <div class="day-bar" style="height:${Math.round(pct*100)}%;background:${col}22;border-top:2px solid ${col}"></div>
+      </div>
+      <div class="day-val mono" style="color:${col}">${d.drive>0?fmtS(d.drive):'—'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('week-summary').innerHTML=`
+    <div class="week-stat"><div class="wlbl">Woche gesamt</div><div class="wval" style="color:#22c55e">${fmtS(totalWeekDrive)}</div></div>
+    <div class="week-stat"><div class="wlbl">Ø pro Tag</div><div class="wval" style="color:#38bdf8">${fmtS(last7.filter(d=>d.drive>0).length?totalWeekDrive/last7.filter(d=>d.drive>0).length:0)}</div></div>
+    <div class="week-stat"><div class="wlbl">Max. Tag</div><div class="wval" style="color:#f59e0b">${fmtS(Math.max(...last7.map(d=>d.drive)))}</div></div>
+    <div class="week-stat"><div class="wlbl">Fahrtage</div><div class="wval" style="color:#818cf8">${last7.filter(d=>d.drive>0).length}/7</div></div>
+  `;
+
+  const lastRest=weekData.lastRestSec||0;
+  document.getElementById('week-last-rest').textContent=lastRest>0?fmtS(lastRest):'—';
+  const restPct=Math.min(lastRest/RULES.minWeeklyRest,1);
+  document.getElementById('weekly-rest-bar').style.width=Math.round(restPct*100)+'%';
+  document.getElementById('weekly-rest-bar').style.background=restPct>=1?'#22c55e':'#818cf8';
+}
+
+function renderLog(){
+  const empty=document.getElementById('log-empty');
+  const list=document.getElementById('log-list');
+  if(logEntries.length===0){empty.style.display='block';list.innerHTML='';}
+  else {
+    empty.style.display='none';
+    list.innerHTML=logEntries.map(e=>`
+      <div class="log-entry">
+        <span class="log-time">${e.time}</span>
+        <div><div class="log-action">${e.action}</div>${e.note?`<div class="log-note">${e.note}</div>`:''}</div>
+      </div>`).join('');
+  }
+}
+
+function updateOpt(id,have,need,label){
+  const el=document.getElementById(id); if(!el) return;
+  const done=have>=need;
+  el.className='opt-row'+(done?' done':'');
+  el.innerHTML=`<span style="font-size:14px">${done?'✅':'⬜'}</span><span class="opt-lbl">${label}</span><span class="opt-cnt">${have}/${need}</span>`;
+}
+function showAlert(id,show){ const el=document.getElementById(id); if(el) el.style.display=show?'flex':'none'; }
+function addBtn(parent,label,cls,fn){
+  const b=document.createElement('button');
+  b.className='ctrl-btn '+cls; b.textContent=label; b.onclick=fn; parent.appendChild(b);
+}
+
+// ══════════════════════════════════════════════════════
+// GPS LIVE TRACKING
+// ══════════════════════════════════════════════════════
+let gpsActive     = false;
+let gpsWatchId    = null;
+let gpsSpeedKmh   = 0;
+let gpsStandStill = 0;      // Sekunden am Stück gestanden
+let gpsMoving     = 0;      // Sekunden am Stück gefahren
+let gpsBannerShown= false;
+let gpsIgnoreUntil= 0;      // Timestamp bis wann ignorieren
+let gpsLastPos    = null;
+
+const GPS_MOVE_THRESHOLD  = 3;    // km/h ab wann = Bewegung erkannt
+const GPS_STILL_THRESHOLD = 2;    // km/h drunter = Stehen
+const GPS_BUS_THRESHOLD   = 15;   // km/h ab wann = Bus fährt (kein Fußgänger)
+const GPS_WENDE_TRIGGER   = 15;   // Sekunden stehen → Wendezeit vorschlagen
+const GPS_PAUSE_OFFER     = 600;  // nach 10 Min Stillstand → Pause anbieten
+const GPS_DRIVE_TRIGGER   = 20;   // Sekunden Bus-Fahrt → Lenkzeit starten
+
+function toggleGPS(){
+  if(gpsActive) stopGPS();
+  else startGPS();
+}
+
+function startGPS(){
+  if(!('geolocation' in navigator)){ showToast('❌ GPS nicht verfügbar'); return; }
+  document.getElementById('gps-dot').className='searching';
+  document.getElementById('gps-txt').textContent='GPS wird gesucht…';
+  document.getElementById('gps-toggle-btn').textContent='Deaktivieren';
+
+  gpsWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      gpsActive = true;
+      const speed = pos.coords.speed != null ? pos.coords.speed * 3.6 : estimateSpeed(pos);
+      gpsSpeedKmh = Math.max(0, speed);
+      gpsLastPos  = pos;
+      processGPSSpeed(gpsSpeedKmh);
+      updateGPSStatus();
+    },
+    err => {
+      document.getElementById('gps-dot').className='';
+      document.getElementById('gps-txt').textContent='GPS Fehler: '+
+        (err.code===1?'Zugriff verweigert':err.code===2?'Position nicht verfügbar':'Timeout');
+      showToast('❌ GPS: '+( err.code===1?'Bitte Standortzugriff erlauben':'Fehler'));
+    },
+    { enableHighAccuracy:true, maximumAge:2000, timeout:10000 }
+  );
+}
+
+function estimateSpeed(pos){
+  // Fallback falls speed=null: aus Position schätzen
+  if(!gpsLastPos) return 0;
+  const dt = (pos.timestamp - gpsLastPos.timestamp) / 1000;
+  if(dt < 1) return gpsSpeedKmh;
+  const dx = haversine(gpsLastPos.coords.latitude, gpsLastPos.coords.longitude,
+                       pos.coords.latitude,        pos.coords.longitude);
+  return (dx / dt) * 3.6;
+}
+
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function stopGPS(){
+  if(gpsWatchId!=null) navigator.geolocation.clearWatch(gpsWatchId);
+  gpsActive=false; gpsWatchId=null; gpsSpeedKmh=0;
+  gpsStandStill=0; gpsMoving=0; gpsBannerShown=false;
+  document.getElementById('gps-dot').className='';
+  document.getElementById('gps-txt').textContent='GPS inaktiv — ';
+  document.getElementById('gps-toggle-btn').textContent='Aktivieren';
+  document.getElementById('gps-speed').textContent='';
+  document.getElementById('gps-banner').style.display='none';
+}
+
+function processGPSSpeed(kmh){
+  if(Date.now() < gpsIgnoreUntil) return;
+  const isMoving = kmh >= GPS_MOVE_THRESHOLD;
+  const isStill  = kmh <= GPS_STILL_THRESHOLD;
+
+  if(isStill)       { gpsStandStill++; gpsMoving=0; }
+  const isBus = gpsSpeedKmh >= GPS_BUS_THRESHOLD; // Unterscheidet Bus von Fußgänger
+
+  if(isStill)      { gpsStandStill++; gpsMoving=0; }
+  else if(isMoving){ gpsMoving++;     gpsStandStill=0; }
+
+  // ── VOLLAUTOMATISCH ──
+
+  // Bus fährt (≥15 km/h, 20 Sek) → Lenkzeit automatisch starten
+  // Fußgänger (4–6 km/h) werden ignoriert!
+  if(isBus && gpsMoving === GPS_DRIVE_TRIGGER){
+    if(S.status==='wende'){
+      endWende();
+      showGPSToast('🚌 Wendezeit beendet — Lenkzeit läuft');
+    } else if(S.status==='break'){
+      endBreak();
+      showGPSToast('🚌 Pause beendet — Lenkzeit läuft');
+    } else if(S.status==='stopped'){
+      startDriving();
+      showGPSToast('🚌 Lenkzeit gestartet');
+    }
+    hideGPSBanner();
+  }
+
+  // Stillstand ab 15 Sek → Banner mit 3 Optionen: Wende / Stau / Pause
+  if(isStill && gpsStandStill === GPS_WENDE_TRIGGER){
+    if(S.status==='driving'){
+      showGPSBanner('stillstand');
+    }
+  }
+
+  // Stillstand ab 10 Min während Wendezeit → Pause anbieten (einmalige Frage)
+  if(isStill && gpsStandStill === GPS_PAUSE_OFFER && S.status==='wende' && !gpsBannerShown){
+    showGPSBanner('pause');
+    if('vibrate' in navigator) navigator.vibrate([300,100,300]);
+  }
+}
+
+function showGPSBanner(type){
+  gpsBannerShown=true;
+  const banner=document.getElementById('gps-banner');
+  const icon=document.getElementById('gps-banner-icon');
+  const msg=document.getElementById('gps-banner-msg');
+  const sub=document.getElementById('gps-banner-sub');
+  const btnWende=document.getElementById('gps-btn-wende');
+  const btnStau=document.getElementById('gps-btn-stau');
+  const btnPause=document.getElementById('gps-btn-pause');
+
+  if(type==='stillstand'){
+    icon.textContent='🛑';
+    msg.textContent='Fahrzeug steht';
+    sub.textContent='Was ist der Grund?';
+    banner.style.borderColor='#38bdf8'; banner.style.background='#1e293b';
+    btnWende.style.display='flex'; btnStau.style.display='flex'; btnPause.style.display='flex';
+  } else if(type==='pause'){
+    icon.textContent='☕';
+    msg.textContent=`Steht seit ${fmtS(gpsStandStill)}`;
+    sub.textContent='Jetzt Pause?';
+    banner.style.borderColor='#f59e0b'; banner.style.background='#f59e0b10';
+    btnWende.style.display='none'; btnStau.style.display='flex'; btnPause.style.display='flex';
+  }
+  banner.style.display='block';
+  if('vibrate' in navigator) navigator.vibrate([150,80,150]);
+}
+
+function showGPSToast(msg){
+  const txt=document.getElementById('gps-txt');
+  if(txt){ txt.textContent=msg+' — '; setTimeout(updateGPSStatus,3000); }
+  if('vibrate' in navigator) navigator.vibrate(150);
+}
+
+function hideGPSBanner(){
+  gpsBannerShown=false;
+  document.getElementById('gps-banner').style.display='none';
+}
+
+function gpsWende(){
+  hideGPSBanner();
+  gpsIgnoreUntil=Date.now()+30000; gpsStandStill=0;
+  if(S.status==='driving'){ startWende(); showGPSToast('🔄 Wendezeit gestartet'); }
+}
+
+function gpsStau(){
+  hideGPSBanner();
+  gpsIgnoreUntil=Date.now()+180000; gpsStandStill=0;
+  showGPSToast('🚦 Stau — Lenkzeit läuft weiter');
+}
+
+function gpsPause(){
+  hideGPSBanner();
+  gpsIgnoreUntil=Date.now()+30000; gpsStandStill=0;
+  if(S.status==='driving'){ startBreak(); showGPSToast('☕ Pause gestartet'); }
+  else if(S.status==='wende'){ endWende(); startBreak(); showGPSToast('☕ Pause gestartet'); }
+}
+
+function gpsConfirmYes(){ gpsWende(); }
+function gpsConfirmNo(){ gpsStau(); }
+
+function updateGPSStatus(){
+  if(!gpsActive) return;
+  const dot=document.getElementById('gps-dot');
+  const txt=document.getElementById('gps-txt');
+  const spd=document.getElementById('gps-speed');
+  const kmh=Math.round(gpsSpeedKmh);
+  const still=gpsStandStill;
+
+  dot.className = kmh >= GPS_MOVE_THRESHOLD ? 'active' : 'searching';
+
+  let statusTxt = '';
+  if(kmh >= GPS_BUS_THRESHOLD){
+    statusTxt = `fährt ${Math.round(kmh)} km/h — `;
+  } else if(kmh >= GPS_MOVE_THRESHOLD){
+    statusTxt = `🚶 läuft ${Math.round(kmh)} km/h (kein Bus) — `;
+  } else if(still < GPS_WENDE_TRIGGER){
+    statusTxt = 'stoppt… — ';
+  } else if(still < GPS_PAUSE_OFFER){
+    statusTxt = `Wendezeit ${fmtS(still)} — `;
+  } else {
+    statusTxt = `steht ${fmtS(still)} — Pause? — `;
+  }
+  txt.textContent = 'GPS AUTO · ' + statusTxt;
+  spd.textContent = kmh + ' km/h';
+  document.getElementById('gps-toggle-btn').textContent='Deaktivieren';
+}
+
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+let dienstHistory = loadDienstHistory();
+let segCount = 0;
+
+function loadDienstHistory(){ try{ const v=Store.get('lzt_dienste'); return v?JSON.parse(v):[]; }catch(e){return[];} }
+function saveDienstHistory(){ Store.set('lzt_dienste',JSON.stringify(dienstHistory.slice(0,60))); }
+
+const TAT_OPTS = [
+  {v:'drive', l:'🚌 Fahrt'},
+  {v:'pause', l:'☕ Pause'},
+  {v:'wende', l:'🔄 Wende'},
+  {v:'vor',   l:'📋 Vorbereitung'},
+  {v:'nach',  l:'📋 Nacharbeit'},
+  {v:'wegim', l:'🔧 Wegfahrt intern'},
+  {v:'einr',  l:'🏠 Einrücken'},
+  {v:'ausr',  l:'🏠 Ausrücken'},
+  {v:'leerf', l:'↔ Leerfahrt'},
+];
+
+function importFromText(){
+  const raw = document.getElementById('pdf-text').value.trim();
+  const fb  = document.getElementById('import-feedback');
+  if(!raw){ fb.style.display='block'; fb.style.background='#f59e0b22'; fb.style.border='1px solid #f59e0b44'; fb.style.color='#fcd34d'; fb.textContent='⚠️ Bitte erst Text einfügen.'; return; }
+
+  // ── Datum erkennen ──
+  const datumMatch = raw.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+  if(datumMatch) document.getElementById('d-datum').value = `${datumMatch[3]}-${datumMatch[2]}-${datumMatch[1]}`;
+
+  // ── Dienstname erkennen ──
+  const nameMatch = raw.match(/Dienstname\s*:\s*(\S+)/i) || raw.match(/Dienst(?:name)?\s*[:\-]\s*([A-Z]\d{3}_\d)/i);
+  if(nameMatch) document.getElementById('d-name').value = nameMatch[1];
+
+  // ── Tätigkeit-Mapping ──
+  const tatMap = {
+    'FAHRT':  'drive', 'fahrt': 'drive',
+    'WENDE':  'wende', 'wende': 'wende',
+    'Pause':  'pause', 'PAUSE': 'pause', 'pause': 'pause',
+    'VOR':    'vor',   'VOR_A': 'vor',
+    'NACH_E': 'nach',  'Nach':  'nach',  'NACH': 'nach',
+    'WEGIM':  'wegim', 'wegim': 'wegim',
+    'EINR':   'einr',  'einr':  'einr',
+    'AUSR':   'ausr',  'AUSR':  'ausr',
+    'AUSR_A': 'ausr',
+    'LEERF':  'leerf', 'leerf': 'leerf',
+    'WEGVO':  'einr',  'WEGVO': 'einr',
+  };
+
+  // ── Zeilen parsen ──
+  // Format: "ORT HH:MM ORT HH:MM TÄTIGKEIT [LINIE KURS]"
+  // Beide Formate aus deinen PDFs:
+  // "B001 10:45 B001 19:16"  ← Dienstteil-Header → überspringen
+  // "B001 10:45 B001 10:50 VOR"
+  // "ZOB-B 11:11 ZOB-B 11:16 Pause"
+
+  const timeRe = /\b(\d{1,2}:\d{2})\b/g;
+  const lines  = raw.split('\n');
+  const segs   = [];
+
+  for(const line of lines){
+    const tline = line.trim();
+    if(!tline) continue;
+
+    // Alle Uhrzeiten in der Zeile finden
+    const times = [];
+    let m;
+    timeRe.lastIndex=0;
+    while((m=timeRe.exec(tline))!==null) times.push(m[1]);
+    if(times.length < 2) continue;
+
+    const von = times[0];
+    const bis = times[1];
+
+    // Tätigkeit erkennen — letztes Wort nach der 2. Uhrzeit das kein Kurs/Linie ist
+    // Kurs = reine Zahl (z.B. 12764), Linie = kurze Zahl (322)
+    const afterBis = tline.slice(tline.lastIndexOf(bis)+bis.length).trim();
+    // Tokens: z.B. "FAHRT 322 12764" oder "Pause" oder "VOR_A"
+    const tokens = afterBis.split(/\s+/).filter(Boolean);
+    if(!tokens.length) continue;
+
+    // Dienstteil-Header überspringen (nur 2 Zeiten, keine Tätigkeit → z.B. "B001 10:45 B001 19:16")
+    // Erkennung: wenn afterBis nur Stationsnamen enthält
+    const tatToken = tokens.find(t => tatMap[t]);
+    if(!tatToken){
+      // Prüfe ob es ein reiner Header ist (keine erkannte Tätigkeit)
+      // Falls Zeile z.B. "B001 06:21 B001 16:03" → überspringen
+      const hasKnownTat = tokens.some(t=>Object.keys(tatMap).includes(t));
+      if(!hasKnownTat) continue;
+    }
+
+    const tat = tatToken ? tatMap[tatToken] : 'drive';
+
+    // Duplikate vermeiden
+    const last = segs[segs.length-1];
+    if(last && last.von===von && last.bis===bis) continue;
+    // Gleichzeitige Segmente überspringen (von===bis)
+    if(von===bis) continue;
+
+    segs.push({von, bis, tat});
+  }
+
+  if(segs.length===0){
+    fb.style.display='block'; fb.style.background='#ef444422'; fb.style.border='1px solid #ef444444'; fb.style.color='#fca5a5';
+    fb.textContent='❌ Keine Segmente erkannt. Prüfe ob der Text vollständig kopiert wurde.';
+    return;
+  }
+
+  // ── Segmente eintragen ──
+  document.getElementById('seg-list').innerHTML='';
+  segCount=0;
+  segs.forEach(s => addSeg(s.von, s.bis, s.tat));
+
+  fb.style.display='block'; fb.style.background='#22c55e22'; fb.style.border='1px solid #22c55e44'; fb.style.color='#86efac';
+  fb.textContent=`✅ ${segs.length} Segmente erkannt und eingetragen!`;
+  document.getElementById('pdf-text').value='';
+
+  // Runterscrollen zur Segmentliste
+  document.getElementById('seg-list').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function importFromText_placeholder(){}
+
+function addSeg(von='', bis='', tat='drive'){
+  segCount++;
+  const id = 'seg-'+segCount;
+  const opts = TAT_OPTS.map(o=>`<option value="${o.v}"${o.v===tat?' selected':''}>${o.l}</option>`).join('');
+  const div = document.createElement('div');
+  div.className='dienst-seg'; div.id=id;
+  div.innerHTML=`
+    <input type="time" class="s-von" value="${von}">
+    <input type="time" class="s-bis" value="${bis}">
+    <select class="s-tat">${opts}</select>
+    <button class="del-seg" onclick="document.getElementById('${id}').remove()">✕</button>
+  `;
+  document.getElementById('seg-list').appendChild(div);
+}
+
+function getSegments(){
+  const segs=[];
+  document.querySelectorAll('#seg-list .dienst-seg').forEach(row=>{
+    const von=row.querySelector('.s-von').value;
+    const bis=row.querySelector('.s-bis').value;
+    const tat=row.querySelector('.s-tat').value;
+    if(von&&bis) segs.push({von,bis,tat});
+  });
+  return segs;
+}
+
+function toMin(t){ const[h,m]=t.split(':').map(Number); return h*60+m; }
+function fmtM(m){ m=Math.max(0,Math.round(m)); const h=Math.floor(m/60),mn=m%60; return h>0?`${h}h ${mn}m`:`${mn}m`; }
+
+function auswerten(){
+  const segs=getSegments();
+  const mode=document.getElementById('d-mode').value;
+  const datum=document.getElementById('d-datum').value;
+  const name=document.getElementById('d-name').value||'Dienst';
+  const prevEnd=document.getElementById('d-prev-end').value;
+  const res=document.getElementById('dienst-result');
+
+  if(segs.length===0){ res.style.display='block'; res.className=''; res.innerHTML='<div style="color:var(--txt4);font-size:12px">Bitte mindestens ein Segment eingeben.</div>'; return; }
+
+  let totalDrive=0, totalPause=0, totalWende=0;
+  const pausen=[];
+  const wenden=[];
+  let violations=[], warnings=[];
+  let contDrive=0, blockStart='', runningPauses=[];
+
+  // ── Segmente durchgehen ──
+  for(let i=0;i<segs.length;i++){
+    const seg=segs[i];
+    const dur=toMin(seg.bis)-toMin(seg.von);
+    if(dur<=0) continue;
+
+    if(seg.tat==='drive'){
+      totalDrive+=dur;
+      if(!blockStart) blockStart=seg.von;
+      contDrive+=dur;
+
+    } else if(seg.tat==='pause'){
+      totalPause+=dur;
+      pausen.push({von:seg.von, bis:seg.bis, dur});
+      // Pause unterbricht Lenkblock wenn Pausenregel erfüllt
+      if(false&&mode==='normal'){
+        runningPauses.push(dur);
+        const allP=[...runningPauses];
+        const ok30=allP.some(p=>p>=30);
+        const ok2x20=allP.filter(p=>p>=20).length>=2;
+        const ok3x15=allP.filter(p=>p>=15).length>=3;
+        if(allP.reduce((a,b)=>a+b,0)>=30&&(ok30||ok2x20||ok3x15)){
+          if(contDrive>270) violations.push(`Lenkblock ${blockStart}–${seg.von}: ${fmtM(contDrive)} > 4,5h!`);
+          contDrive=0; blockStart=''; runningPauses=[];
+        }
+      }
+
+    } else if(seg.tat==='wende'){
+      // §7 Abs.4: Wendezeiten ≥10 Min werden angerechnet
+      if(dur>=10){
+        totalWende+=dur;
+        wenden.push({von:seg.von, bis:seg.bis, dur});
+      }
+      // Wendezeit unterbricht Lenkblock NICHT (Fahrzeug kehrt um, keine echte Pause)
+    }
+    // vor/nach/wegim/einr/ausr/leerf: neutral, kein Einfluss
+  }
+
+  // Letzten Block prüfen
+  if(contDrive>0 && mode==='normal' && contDrive>270)
+    violations.push(`Letzter Lenkblock ${blockStart}: ${fmtM(contDrive)} > 4,5h!`);
+
+  // ── Tageslenkzeit ──
+  if(totalDrive>540) violations.push(`Tageslenkzeit ${fmtM(totalDrive)} überschreitet 9h!`);
+  else if(totalDrive>480) warnings.push(`Tageslenkzeit ${fmtM(totalDrive)} — über 8h`);
+
+  // ── Pausenregel mit Wendezeiten (§7 Abs.4) ──
+  const wendeGesamt=totalWende;
+  const wendeRegelErfüllt=wendeGesamt>=45; // 45 Min Wendezeiten gesamt
+
+  if(false&&mode==='normal'){
+    const ok30=pausen.some(p=>p.dur>=30);
+    const ok2x20=pausen.filter(p=>p.dur>=20).length>=2;
+    const ok3x15=pausen.filter(p=>p.dur>=15).length>=3;
+    const pauseOk=ok30||ok2x20||ok3x15;
+    // §7 Abs.4: Wendezeiten ≥10 Min gesamt ≥45 Min → Pausenregel erfüllt
+    if(!pauseOk && !wendeRegelErfüllt){
+      violations.push(`Pausenregel nicht erfüllt! Pausen: ${fmtM(totalPause)}, Wendezeiten (§7 Abs.4): ${fmtM(wendeGesamt)}/45 Min`);
+    } else if(!pauseOk && wendeRegelErfüllt){
+      warnings.push(`Keine klassische Pause — aber Wendezeiten ${fmtM(wendeGesamt)} ≥ 45 Min (§7 Abs.4 erfüllt)`);
+    }
+  } else {
+    // Kurzstrecke: 1/6 der Lenkzeit, Pausen+Wendezeiten ≥10 Min zählen
+    const req=totalDrive/6;
+    const havePause=pausen.filter(p=>p.dur>=10).reduce((a,b)=>a+b.dur,0);
+    const haveWende=wenden.filter(w=>w.dur>=10).reduce((a,b)=>a+b.dur,0);
+    const haveGesamt=havePause+haveWende;
+    if(haveGesamt<req) violations.push(`Kurzstrecke: Pausen+Wenden ${fmtM(haveGesamt)} < 1/6 Lenkzeit (${fmtM(req)} nötig)!`);
+    else if(haveGesamt<req*1.1) warnings.push(`Kurzstrecke: Pausen+Wenden knapp (${fmtM(haveGesamt)} / ${fmtM(req)} benötigt)`);
+  }
+
+  // ── Ruhezeit ──
+  let ruheOk=true, ruheMin=0;
+  if(prevEnd&&segs.length>0){
+    ruheMin=(toMin(segs[0].von)+24*60)-toMin(prevEnd);
+    if(ruheMin<660){ violations.push(`Ruhezeit ${fmtM(ruheMin)} < 11h (Dienstbeginn zu früh)!`); ruheOk=false; }
+    else if(ruheMin<720) warnings.push(`Ruhezeit ${fmtM(ruheMin)} — knapp über 11h`);
+  }
+
+  const lastSeg=segs[segs.length-1];
+  const fruehesterBeginn=toMin(lastSeg.bis)+660;
+  const fhH=Math.floor(fruehesterBeginn/60)%24, fhM=fruehesterBeginn%60;
+  const status=violations.length>0?'err':warnings.length>0?'warn':'ok';
+  const statusLabel=violations.length>0?`❌ ${violations.length} Verstoß${violations.length>1?'e':''}`:warnings.length>0?`⚠️ ${warnings.length} Hinweis${warnings.length>1?'e':''}`:'✅ Regelkonform';
+
+  const entryData={totalDrive,totalPause,totalWende,violations,warnings,status,mode,segs,prevEnd};
+
+  // Wende-Info Zeile
+  const wendeZeile=wenden.length>0
+    ? `<div class="result-row"><span>Wendezeiten ≥10 Min (§7 Abs.4)</span><span class="${wendeRegelErfüllt?'result-ok':'result-warn'}">${fmtM(wendeGesamt)} ${wendeRegelErfüllt?'✅':'/ 45m nötig'}</span></div>`
+    : '';
+
+  res.style.display='block'; res.className=status;
+  res.innerHTML=`
+    <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:${status==='err'?'#ef4444':status==='warn'?'#f59e0b':'#22c55e'}">${statusLabel}</div>
+    <div class="result-row"><span>Lenkzeit gesamt</span><span class="${totalDrive>540?'result-err':totalDrive>480?'result-warn':'result-ok'}">${fmtM(totalDrive)}</span></div>
+    <div class="result-row"><span>Pausen gesamt</span><span style="color:var(--txt2)">${fmtM(totalPause)}</span></div>
+    ${wendeZeile}
+    <div class="result-row"><span>Dienst gesamt</span><span style="color:var(--txt2)">${fmtM(toMin(lastSeg.bis)-toMin(segs[0].von))}</span></div>
+    ${prevEnd?`<div class="result-row"><span>Ruhezeit davor</span><span class="${ruheOk?'result-ok':'result-err'}">${fmtM(ruheMin)}</span></div>`:''}
+    <div class="result-row"><span>Frühester Beginn morgen</span><span class="result-ok">${String(fhH).padStart(2,'0')}:${String(fhM).padStart(2,'0')} Uhr</span></div>
+    ${violations.map(v=>`<div style="background:#ef444420;border-radius:8px;padding:7px 10px;margin-top:6px;font-size:11px;font-weight:600;color:#ef4444">🚨 ${v}</div>`).join('')}
+    ${warnings.map(w=>`<div style="background:#f59e0b20;border-radius:8px;padding:7px 10px;margin-top:6px;font-size:11px;font-weight:600;color:#f59e0b">⚠️ ${w}</div>`).join('')}
+    <button id="save-btn" style="width:100%;padding:10px;border-radius:9px;margin-top:10px;background:var(--bg3);
+      border:1px solid var(--border);color:var(--txt3);font-size:12px;font-weight:600;font-family:'Sora',sans-serif">
+      💾 In Historie speichern
+    </button>
+  `;
+  document.getElementById('save-btn').onclick=()=>saveToHistory(datum,name,entryData);
+}
+
+function saveToHistory(datum,name,data){
+  const entry={datum,name,...data,savedAt:new Date().toLocaleDateString('de-DE')};
+  dienstHistory.unshift(entry);
+  saveDienstHistory();
+  renderDienstHistory();
+  showToast('💾 Dienst gespeichert!');
+}
+
+function clearDienstHistory(){ dienstHistory=[]; saveDienstHistory(); renderDienstHistory(); }
+
+function renderDienstHistory(){
+  const empty=document.getElementById('hist-empty');
+  const list=document.getElementById('hist-list');
+  if(!empty||!list) return;
+  if(dienstHistory.length===0){ empty.style.display='block'; list.innerHTML=''; return; }
+  empty.style.display='none';
+  list.innerHTML=dienstHistory.map((e,i)=>{
+    const badge=e.status==='err'?'❌ Verstoß':e.status==='warn'?'⚠️ Hinweis':'✅ OK';
+    const viol=e.violations&&e.violations.length>0?`<div class="hist-violations">${e.violations.map(v=>'🚨 '+v).join('<br>')}</div>`:'';
+    const warn=e.warnings&&e.warnings.length>0?`<div style="font-size:11px;color:#f59e0b;margin-top:2px">${e.warnings.map(w=>'⚠️ '+w).join('<br>')}</div>`:'';
+    return `<div class="hist-entry ${e.status}" onclick="this.classList.toggle('expanded')">
+      <div class="hist-top">
+        <span class="hist-name">${e.datum?e.datum+' · ':''}<strong>${e.name}</strong></span>
+        <span class="hist-badge ${e.status}">${badge}</span>
+      </div>
+      <div class="hist-detail">Lenkzeit: ${fmtM(e.totalDrive)} · Pausen: ${fmtM(e.totalPause)} · Kurzstrecke</div>
+      ${viol}${warn}
+      <div class="hist-expanded">
+        <div style="font-size:10px;color:var(--txt4);margin-bottom:6px">Segmente:</div>
+        ${(e.segs||[]).map(s=>`<div style="font-size:11px;color:var(--txt3);font-family:'JetBrains Mono',monospace">${s.von}–${s.bis} ${TAT_OPTS.find(t=>t.v===s.tat)?.l||s.tat}</div>`).join('')}
+        <button onclick="event.stopPropagation();deleteDienst(${i})" style="margin-top:8px;background:none;border:1px solid var(--bg4);
+          border-radius:7px;color:var(--txt4);font-size:11px;padding:4px 10px;font-family:'Sora',sans-serif">
+          🗑 Löschen
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteDienst(i){ dienstHistory.splice(i,1); saveDienstHistory(); renderDienstHistory(); }
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+if(lightMode){ document.body.classList.add('light'); document.getElementById('theme-btn').textContent='🌙'; }
+document.getElementById('notif-btn').textContent=notifEnabled?'🔔':'🔕';
+
+// Shift start input sync
+const shiftInput=document.getElementById('shift-start');
+shiftInput.value=S.shiftStart||'';
+shiftInput.addEventListener('change',e=>{ S.shiftStart=e.target.value; saveState(); render(); });
+
+// Storage status anzeigen
+const storType=Store.available();
+if(storType!=='localStorage'){
+  showToast(`⚠️ Speicher: ${storType==='sessionStorage'?'Sitzung (Daten gehen beim Schließen verloren!)':'Kein Speicher!'}`)
+}
+
+// Resume tick if status was active when app was closed
+if(S.status!=='stopped') startTick();
+
+render();
+if(S.driveToday>0){ const wd=weekData.days.find(d=>d.date===new Date().toISOString().slice(0,10)); if(wd) wd.drive=Math.max(wd.drive,S.driveToday); saveWeek(); }
+
+// Dienst init
+document.getElementById('d-datum').value=new Date().toISOString().slice(0,10);
+addSeg('','','drive');
+renderDienstHistory();
+</script>
+</body>
+</html>
